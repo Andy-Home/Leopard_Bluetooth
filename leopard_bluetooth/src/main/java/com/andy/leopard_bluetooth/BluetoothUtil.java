@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
+ * 蓝牙工具类
+ *
  * Created by andy on 17-9-22.
  */
 
@@ -69,8 +71,9 @@ public class BluetoothUtil {
      * @param listener 监听回调接口
      * @param code     作为返回数据时的请求标识
      */
-    public void connectDevice(String address, final Listener.baseListener listener, final int code) {
-        mReceiver.getBluetoothDevice(address, new Listener.findDeviceListener() {
+    public void connectDevice(String address, final Listener.BaseListener listener, final int code) {
+        //通过
+        mReceiver.getBluetoothDevice(address, new FindDeviceListener() {
             @Override
             public void success(BluetoothDevice device) {
                 try {
@@ -80,5 +83,10 @@ public class BluetoothUtil {
                 }
             }
         });
+    }
+
+    //回调接口
+    public interface FindDeviceListener {
+        void success(BluetoothDevice device);
     }
 }

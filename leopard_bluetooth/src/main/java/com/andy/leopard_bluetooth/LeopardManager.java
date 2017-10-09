@@ -1,8 +1,10 @@
 package com.andy.leopard_bluetooth;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 
 import java.io.File;
+import java.util.UUID;
 
 /**
  * 蓝牙相关操作管理接口
@@ -12,6 +14,7 @@ import java.io.File;
 
 public class LeopardManager {
     private static LeopardManager mLeopardManager = null;
+    private BluetoothUtil mBluetoothUtil = BluetoothUtil.getInstance();
 
     private LeopardManager() {
     }
@@ -23,11 +26,16 @@ public class LeopardManager {
         return mLeopardManager;
     }
 
+    public void init(Context context, UUID uuid) {
+        mBluetoothUtil.init(context, uuid);
+
+    }
+
     /**
      * 打开蓝牙
      */
     public boolean open() {
-        return false;
+        return mBluetoothUtil.open();
     }
 
     /**
@@ -52,6 +60,6 @@ public class LeopardManager {
      * 关闭蓝牙
      */
     public boolean close() {
-        return false;
+        return mBluetoothUtil.close();
     }
 }

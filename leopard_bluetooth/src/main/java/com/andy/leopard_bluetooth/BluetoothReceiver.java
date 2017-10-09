@@ -17,7 +17,7 @@ import java.util.List;
 public class BluetoothReceiver extends BroadcastReceiver {
     private List<BluetoothDevice> deviceList = new ArrayList<>();
     private String targetAddress = null;
-    private Listener.findDeviceListener listener = null;
+    private BluetoothUtil.FindDeviceListener mListener = null;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -29,10 +29,10 @@ public class BluetoothReceiver extends BroadcastReceiver {
 
                 if (targetAddress != null) {
                     if (targetAddress.equals(device.getAddress())) {
-                        listener.success(device);
+                        mListener.success(device);
                         //当查找到信息时，清空信息内容
                         targetAddress = null;
-                        listener = null;
+                        mListener = null;
                     }
                 }
             }
@@ -41,7 +41,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
         }
     }
 
-    public void getBluetoothDevice(String address, Listener.findDeviceListener listener) {
+    public void getBluetoothDevice(String address, BluetoothUtil.FindDeviceListener listener) {
         boolean flag = true;
         //查找当前获取的远程蓝牙设备列表中是否存在目标蓝牙设备，查找到通过回调函数反馈结果
         for (BluetoothDevice device : deviceList) {
@@ -53,7 +53,7 @@ public class BluetoothReceiver extends BroadcastReceiver {
         //未在列表中找到设备，等待查找线程查找设备
         if (flag) {
             targetAddress = address;
-            this.listener = listener;
+            mListener = listener;
         }
     }
 }

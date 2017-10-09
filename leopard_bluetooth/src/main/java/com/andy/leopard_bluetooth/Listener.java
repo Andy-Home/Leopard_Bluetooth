@@ -10,13 +10,13 @@ import android.bluetooth.BluetoothDevice;
 
 public class Listener {
 
-    public interface baseListener {
+    public interface BaseListener {
         void success(int code, String result);
 
         void failure(int code, String msg);
     }
 
-    public interface findDeviceListener {
+    public interface FindDeviceListener {
         void success(BluetoothDevice device);
     }
 }
