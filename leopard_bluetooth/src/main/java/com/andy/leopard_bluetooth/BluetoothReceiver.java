@@ -56,4 +56,11 @@ public class BluetoothReceiver extends BroadcastReceiver {
             mListener = listener;
         }
     }
+
+    /**
+     * 获取当前已查询到的蓝牙
+     */
+    public List<BluetoothDevice> getDeviceList() {
+        return deviceList;
+    }
 }
