@@ -2,10 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '26.0.2'
     defaultConfig {
-        applicationId "com.andy.leopard_bluetooth"
-        minSdkVersion 14
+        applicationId "com.andy.bluetooth"
+        minSdkVersion 17
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -26,4 +26,5 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:recyclerview-v7:26.0.0-alpha1'
+    compile project(':leopard_bluetooth')
 }

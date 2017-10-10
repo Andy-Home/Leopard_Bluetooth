@@ -1,4 +1,4 @@
-package com.andy.leopard_bluetooth;
+package com.andy.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.andy.leopard_bluetooth.R;
 
 import java.util.List;
 
