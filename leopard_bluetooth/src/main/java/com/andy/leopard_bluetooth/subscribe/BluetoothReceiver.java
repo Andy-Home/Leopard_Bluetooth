@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
  */
 
 public class BluetoothReceiver extends BroadcastReceiver implements Subject {
+    private final String TAG = getClass().getSimpleName();
     private List<BluetoothDevice> deviceList = new ArrayList<>();
 
     private List<Observer> observerList = new ArrayList<>();
@@ -24,6 +26,12 @@ public class BluetoothReceiver extends BroadcastReceiver implements Subject {
      */
     private static final String ACTION_DISAPPEARED = "android.bluetooth.device.action.DISAPPEARED";
 
+    public static final int DEVICE_LIST_UPDATE = 1;     //可见设备更新
+    public static final int BOND_BONDED = 2;             //设备配对成功
+    public static final int BOND_BONDING = 3;            //设备正在配对
+    public static final int BOND_NONE = 4;               //设备未配对
+
+
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
@@ -31,13 +39,30 @@ public class BluetoothReceiver extends BroadcastReceiver implements Subject {
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (!deviceList.contains(device)) {
                 deviceList.add(device);
-                notify(deviceList);
+                notify(deviceList, DEVICE_LIST_UPDATE);
             }
         } else if (action.equals(ACTION_DISAPPEARED)) {
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (deviceList.contains(device)) {
                 deviceList.remove(device);
-                notify(deviceList);
+                notify(deviceList, DEVICE_LIST_UPDATE);
+            }
+        } else if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            String deviceName = device.getName();
+            switch (device.getBondState()) {
+                case BluetoothDevice.BOND_BONDED:
+                    Log.i(TAG, deviceName + "设备配对成功");
+                    notify(device, BOND_BONDED);
+                    break;
+                case BluetoothDevice.BOND_BONDING:
+                    Log.i(TAG, deviceName + "正在配对");
+                    notify(device, BOND_BONDING);
+                    break;
+                case BluetoothDevice.BOND_NONE:
+                    Log.i(TAG, deviceName + "设备未配对");
+                    notify(device, BOND_NONE);
+                    break;
             }
         }
     }
@@ -55,9 +80,9 @@ public class BluetoothReceiver extends BroadcastReceiver implements Subject {
     }
 
     @Override
-    public void notify(Object obj) {
+    public void notify(Object obj, int code) {
         for (Observer o : observerList) {
-            o.update(obj);
+            o.update(obj, code);
         }
     }
 }

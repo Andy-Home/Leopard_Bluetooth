@@ -25,5 +25,5 @@ public interface Subject {
     /**
      * 通知订阅者更新消息
      */
-    void notify(Object obj);
+    void notify(Object obj, int code);
 }

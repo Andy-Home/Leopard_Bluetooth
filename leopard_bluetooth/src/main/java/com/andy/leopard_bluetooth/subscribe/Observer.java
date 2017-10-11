@@ -8,5 +8,5 @@ package com.andy.leopard_bluetooth.subscribe;
 
 public interface Observer {
 
-    void update(Object obj);
+    void update(Object obj, int code);
 }
