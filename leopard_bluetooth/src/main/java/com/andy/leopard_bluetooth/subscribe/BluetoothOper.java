@@ -63,11 +63,17 @@ public class BluetoothOper implements Observer {
      * 打开蓝牙，并注册广播接收信号
      */
     public boolean open() {
-        if (adapter.enable()) {
-            IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            mContext.registerReceiver(mReceiver, filter);
-            startDiscovery();
+        if (!adapter.isEnabled()) {
+            adapter.enable();
+        } else {
+            startDiscovery();   //当蓝牙打开原本打开时直接进行搜索
         }
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_FOUND);//搜索发现设备
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);//状态改变
+        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);//行动扫描模式改变了
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);//动作状态发生了变化
+        mContext.registerReceiver(mReceiver, filter);
         return true;
     }
 
@@ -91,7 +97,10 @@ public class BluetoothOper implements Observer {
     public boolean close() {
         mContext.unregisterReceiver(mReceiver);
         mReceiver.detach(this);
-        return adapter.disable();
+        if (adapter.isEnabled()) {
+            return adapter.disable();
+        }
+        return true;
     }
 
     private BluetoothSocket socket;
@@ -175,6 +184,11 @@ public class BluetoothOper implements Observer {
                 if (mBondListener != null) {
                     mBondListener.bonding((BluetoothDevice) obj);
                 }
+                break;
+            case BluetoothReceiver.STATE_ON:
+                startDiscovery();
+                break;
+            case BluetoothReceiver.STATE_OFF:
                 break;
         }
 

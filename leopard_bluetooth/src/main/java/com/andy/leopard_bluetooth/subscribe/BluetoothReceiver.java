@@ -1,5 +1,6 @@
 package com.andy.leopard_bluetooth.subscribe;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,24 +31,27 @@ public class BluetoothReceiver extends BroadcastReceiver implements Subject {
     public static final int BOND_BONDED = 2;             //设备配对成功
     public static final int BOND_BONDING = 3;            //设备正在配对
     public static final int BOND_NONE = 4;               //设备未配对
+    public static final int STATE_ON = 5;               //蓝牙打开成功
+    public static final int STATE_OFF = 6;              //蓝牙关闭成功
 
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (action.equals(BluetoothDevice.ACTION_FOUND)) {
+        if (action.equals(BluetoothDevice.ACTION_FOUND)) {  //找到蓝牙设备
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            Log.d(TAG, "找到蓝牙设备" + device.getName());
             if (!deviceList.contains(device)) {
                 deviceList.add(device);
                 notify(deviceList, DEVICE_LIST_UPDATE);
             }
-        } else if (action.equals(ACTION_DISAPPEARED)) {
+        } else if (action.equals(ACTION_DISAPPEARED)) {     //可见蓝牙设备消失
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (deviceList.contains(device)) {
                 deviceList.remove(device);
                 notify(deviceList, DEVICE_LIST_UPDATE);
             }
-        } else if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
+        } else if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {  //蓝牙配对状态改变
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             String deviceName = device.getName();
             switch (device.getBondState()) {
@@ -62,6 +66,18 @@ public class BluetoothReceiver extends BroadcastReceiver implements Subject {
                 case BluetoothDevice.BOND_NONE:
                     Log.i(TAG, deviceName + "设备未配对");
                     notify(device, BOND_NONE);
+                    break;
+            }
+        } else if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+            int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+            switch (state) {
+                case BluetoothAdapter.STATE_ON:
+                    Log.d(TAG, "蓝牙打开");
+                    notify(null, STATE_ON);
+                    break;
+                case BluetoothAdapter.STATE_OFF:
+                    Log.d(TAG, "蓝牙关闭");
+                    notify(null, STATE_OFF);
                     break;
             }
         }

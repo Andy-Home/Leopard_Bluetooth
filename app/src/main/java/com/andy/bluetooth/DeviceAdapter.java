@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.andy.leopard_bluetooth.R;
-
 import java.util.List;
 
 /**
@@ -26,7 +24,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceHold
 
     @Override
     public DeviceHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        DeviceHolder deviceHolder = new DeviceHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_device, parent));
+        DeviceHolder deviceHolder = new DeviceHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_device, parent, false));
         return deviceHolder;
     }
 
