@@ -6,9 +6,12 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.andy.leopard_bluetooth.BluetoothClient;
 import com.andy.leopard_bluetooth.LeopardManager;
+import com.andy.leopard_bluetooth.subscribe.Bluetooth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +45,31 @@ public class MainActivity extends Activity {
                 deviceData.addAll(data);
                 mAdapter.notifyDataSetChanged();
                 Log.d(TAG, "数据更新：" + data.size());
+            }
+        });
+
+        mAdapter.setOnItemClickListener(new DeviceAdapter.ItemClickListener() {
+            @Override
+            public void onClick(View v, int position) {
+                BluetoothDevice device = deviceData.get(position);
+                if (device.getBondState() == BluetoothDevice.BOND_NONE) {
+                    mLeopardManager.bond(device, new Bluetooth.BondListener() {
+                        @Override
+                        public void bonded(BluetoothDevice device) {
+                            Toast.makeText(MainActivity.this, "绑定成功", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void bonding(BluetoothDevice device) {
+                            Toast.makeText(MainActivity.this, "正在绑定", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void none(BluetoothDevice device) {
+                            Toast.makeText(MainActivity.this, "绑定失败", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         });
     }

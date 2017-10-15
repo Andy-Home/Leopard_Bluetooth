@@ -11,6 +11,8 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
+ * RecycleView 适配器
+ *
  * Created by Administrator on 2017/10/9.
  */
 
@@ -29,16 +31,31 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.DeviceHold
     }
 
     @Override
-    public void onBindViewHolder(DeviceHolder holder, int position) {
+    public void onBindViewHolder(DeviceHolder holder, final int position) {
         if (position != -1) {
             holder.deviceName.setText(deviceList.get(position).getName());
+            holder.connect.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    itemClickListener.onClick(v, position);
+                }
+            });
         }
-
     }
 
     @Override
     public int getItemCount() {
         return deviceList == null ? -1 : deviceList.size();
+    }
+
+    private ItemClickListener itemClickListener;
+
+    public void setOnItemClickListener(ItemClickListener listener) {
+        this.itemClickListener = listener;
+    }
+
+    public interface ItemClickListener {
+        void onClick(View v, int position);
     }
 
     class DeviceHolder extends RecyclerView.ViewHolder {

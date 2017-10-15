@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.util.Log;
 
 /**
@@ -62,6 +63,20 @@ public abstract class Bluetooth implements Observer {
         return true;
     }
 
+    private BondListener mBondListener;
+
+    public void bond(BluetoothDevice device, BondListener listener) {
+        mBondListener = listener;
+        Log.d(TAG, "配对" + device.getName());
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                device.createBond();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 系统是否支持蓝牙
      */
@@ -91,6 +106,29 @@ public abstract class Bluetooth implements Observer {
             case BluetoothReceiver.STATE_ON:
                 startDiscovery();
                 break;
+            case BluetoothReceiver.BOND_BONDED:
+                if (mBondListener != null) {
+                    mBondListener.bonded((BluetoothDevice) obj);
+                }
+                break;
+            case BluetoothReceiver.BOND_NONE:
+                if (mBondListener != null) {
+                    mBondListener.none((BluetoothDevice) obj);
+                }
+                break;
+            case BluetoothReceiver.BOND_BONDING:
+                if (mBondListener != null) {
+                    mBondListener.bonding((BluetoothDevice) obj);
+                }
+                break;
         }
+    }
+
+    public interface BondListener {
+        void bonded(BluetoothDevice device);
+
+        void bonding(BluetoothDevice device);
+
+        void none(BluetoothDevice device);
     }
 }

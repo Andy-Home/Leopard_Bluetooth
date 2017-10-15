@@ -3,6 +3,8 @@ package com.andy.leopard_bluetooth;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
+import com.andy.leopard_bluetooth.subscribe.Bluetooth;
+
 import java.io.File;
 import java.util.UUID;
 
@@ -45,6 +47,10 @@ public class LeopardManager {
      */
     public boolean setDevice(BluetoothDevice device) {
         return false;
+    }
+
+    public void bond(BluetoothDevice device, Bluetooth.BondListener listener) {
+        mBluetoothClient.bond(device, listener);
     }
 
     /**
