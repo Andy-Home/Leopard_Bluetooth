@@ -1,12 +1,13 @@
-package com.andy.leopard_bluetooth.subscribe;
+package com.andy.leopard_bluetooth;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.os.Build;
 import android.util.Log;
+
+import com.andy.leopard_bluetooth.subscribe.Bluetooth;
+import com.andy.leopard_bluetooth.subscribe.BluetoothReceiver;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,88 +20,27 @@ import java.util.UUID;
  * Created by andy on 17-9-22.
  */
 
-public class BluetoothOper implements Observer {
+public class BluetoothClient extends Bluetooth {
     private final String TAG = getClass().getSimpleName();
     private UUID mUUID;
+    private static BluetoothClient mBluetoothClient = null;
 
-    private static BluetoothOper mBluetoothOper = null;
-    private BluetoothAdapter adapter;
-    private Context mContext;
-    private BluetoothReceiver mReceiver;
-
-    private BluetoothOper() {
+    private BluetoothClient() {
     }
 
-    public static BluetoothOper getInstance() {
-        if (mBluetoothOper == null) {
-            mBluetoothOper = new BluetoothOper();
+    public static BluetoothClient getInstance() {
+        if (mBluetoothClient == null) {
+            mBluetoothClient = new BluetoothClient();
         }
-        return mBluetoothOper;
+        return mBluetoothClient;
     }
 
     /**
      * 初始化
      */
     public void init(Context context, UUID uuid) {
-        adapter = BluetoothAdapter.getDefaultAdapter();
-        if (adapter == null) {
-            Log.i(TAG, "系统不支持蓝牙");
-        }
-        this.mContext = context;
+        super.setContext(context);
         this.mUUID = uuid;
-        mReceiver = new BluetoothReceiver();
-        mReceiver.attach(this);
-    }
-
-    /**
-     * 系统是否支持蓝牙
-     */
-    public boolean isSupportBluetooth() {
-        return adapter != null;
-    }
-
-    /**
-     * 打开蓝牙，并注册广播接收信号
-     */
-    public boolean open() {
-        if (!adapter.isEnabled()) {
-            adapter.enable();
-        } else {
-            startDiscovery();   //当蓝牙打开原本打开时直接进行搜索
-        }
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_FOUND);//搜索发现设备
-        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);//状态改变
-        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);//行动扫描模式改变了
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);//动作状态发生了变化
-        mContext.registerReceiver(mReceiver, filter);
-        return true;
-    }
-
-    /**
-     * 开始搜索可见蓝牙设备
-     */
-    public void startDiscovery() {
-        adapter.startDiscovery();//开始搜索
-    }
-
-    /**
-     * 停止搜索可见蓝牙设备
-     */
-    public void cancelDiscovery() {
-        adapter.cancelDiscovery();
-    }
-
-    /**
-     * 关闭蓝牙，释放注册
-     */
-    public boolean close() {
-        mContext.unregisterReceiver(mReceiver);
-        mReceiver.detach(this);
-        if (adapter.isEnabled()) {
-            return adapter.disable();
-        }
-        return true;
     }
 
     private BluetoothSocket socket;
@@ -163,6 +103,7 @@ public class BluetoothOper implements Observer {
 
     @Override
     public void update(Object obj, int code) {
+        super.update(obj, code);
         switch (code) {
             case BluetoothReceiver.DEVICE_LIST_UPDATE:
                 deviceList = (List<BluetoothDevice>) obj;
@@ -184,11 +125,6 @@ public class BluetoothOper implements Observer {
                 if (mBondListener != null) {
                     mBondListener.bonding((BluetoothDevice) obj);
                 }
-                break;
-            case BluetoothReceiver.STATE_ON:
-                startDiscovery();
-                break;
-            case BluetoothReceiver.STATE_OFF:
                 break;
         }
 

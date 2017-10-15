@@ -7,8 +7,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.andy.leopard_bluetooth.BluetoothClient;
 import com.andy.leopard_bluetooth.LeopardManager;
-import com.andy.leopard_bluetooth.subscribe.BluetoothOper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
         mLeopardManager = LeopardManager.getInstance();
         mLeopardManager.init(this, UUID.randomUUID());
         mLeopardManager.open();
-        mLeopardManager.setDeviceUpdateListener(new BluetoothOper.DeviceUpdateListener() {
+        mLeopardManager.setDeviceUpdateListener(new BluetoothClient.DeviceUpdateListener() {
             @Override
             public void update(List<BluetoothDevice> data) {
                 deviceData.clear();

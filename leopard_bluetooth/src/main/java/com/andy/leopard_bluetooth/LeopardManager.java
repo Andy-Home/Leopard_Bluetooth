@@ -3,8 +3,6 @@ package com.andy.leopard_bluetooth;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
-import com.andy.leopard_bluetooth.subscribe.BluetoothOper;
-
 import java.io.File;
 import java.util.UUID;
 
@@ -16,7 +14,7 @@ import java.util.UUID;
 
 public class LeopardManager {
     private static LeopardManager mLeopardManager = null;
-    private BluetoothOper mBluetoothOper = BluetoothOper.getInstance();
+    private BluetoothClient mBluetoothClient = BluetoothClient.getInstance();
 
     private LeopardManager() {
     }
@@ -29,7 +27,7 @@ public class LeopardManager {
     }
 
     public void init(Context context, UUID uuid) {
-        mBluetoothOper.init(context, uuid);
+        mBluetoothClient.init(context, uuid);
 
     }
 
@@ -37,7 +35,7 @@ public class LeopardManager {
      * 打开蓝牙
      */
     public boolean open() {
-        return mBluetoothOper.open();
+        return mBluetoothClient.open();
     }
 
     /**
@@ -62,10 +60,10 @@ public class LeopardManager {
      * 关闭蓝牙
      */
     public boolean close() {
-        return mBluetoothOper.close();
+        return mBluetoothClient.close();
     }
 
-    public void setDeviceUpdateListener(BluetoothOper.DeviceUpdateListener listener) {
-        mBluetoothOper.setDeviceUpdateListener(listener);
+    public void setDeviceUpdateListener(BluetoothClient.DeviceUpdateListener listener) {
+        mBluetoothClient.setDeviceUpdateListener(listener);
     }
 }
