@@ -52,14 +52,28 @@ public class BluetoothClient extends Bluetooth {
         }
         cancelDiscovery();  //减少资源占用,停止搜索
         try {
-            socket = device.createRfcommSocketToServiceRecord(mUUID);
-            socket.connect();
+            if (socket == null) {
+                socket = device.createRfcommSocketToServiceRecord(mUUID);
+                socket.connect();
+            } else if (socket.isConnected()) {
+                if (!socket.getRemoteDevice().equals(device)) {
+                    socket = device.createRfcommSocketToServiceRecord(mUUID);
+                    socket.connect();
+                }
+            } else if (!socket.isConnected()) {
+                socket.connect();
+            }
+            if (socket.isConnected()) {
+                listener.success("连接成功");
+            } else {
+                listener.failure("连接失败");
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
+
 
     @Override
     public void update(Object obj, int code) {

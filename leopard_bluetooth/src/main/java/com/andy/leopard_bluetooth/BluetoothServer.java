@@ -1,5 +1,7 @@
 package com.andy.leopard_bluetooth;
 
+import android.bluetooth.BluetoothServerSocket;
+
 import com.andy.leopard_bluetooth.subscribe.Bluetooth;
 
 /**
@@ -10,11 +12,9 @@ import com.andy.leopard_bluetooth.subscribe.Bluetooth;
 
 public class BluetoothServer extends Bluetooth {
 
-
-
+    private BluetoothServerSocket socket;
     @Override
     public void update(Object obj, int code) {
         super.update(obj, code);
-
     }
 }
