@@ -1,10 +1,15 @@
 package com.andy.leopard_bluetooth.socket;
 
+import com.andy.leopard_bluetooth.socket.message.FileMessage;
+import com.andy.leopard_bluetooth.socket.message.Message;
+import com.andy.leopard_bluetooth.socket.message.StringMessage;
+import com.andy.leopard_bluetooth.socket.queue.MessageQueue;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 蓝牙通讯,类似Scoket通讯
@@ -14,15 +19,22 @@ import java.util.List;
 
 public class BluetoothSocket {
     private final String TAG = getClass().getSimpleName();
+    private android.bluetooth.BluetoothSocket mSocket;
 
-    public BluetoothSocket() {
+    /**
+     * 数据发送流
+     */
+    private OutputStream sendStream;
 
-    }
+    /**
+     * 数据接收流
+     */
+    private InputStream recieveStream;
 
-    private android.bluetooth.BluetoothSocket mClientSocket;
+    private boolean isClose = false;
 
-    private void setSocket(android.bluetooth.BluetoothSocket socket) {
-        mClientSocket = socket;
+    public BluetoothSocket(android.bluetooth.BluetoothSocket socket) {
+        mSocket = socket;
         try {
             sendStream = socket.getOutputStream();
             recieveStream = socket.getInputStream();
@@ -31,17 +43,59 @@ public class BluetoothSocket {
         }
     }
 
-    private List<Message> sendList = new ArrayList<>();
+    private MessageQueue mQueue = new MessageQueue();
 
-    private OutputStream sendStream;
+    public void send(Message msg) {
+        mQueue.in(msg);
+    }
+
 
     private void sendThread() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!isClose) {
+
+                    while (mQueue.size() > 0) {
+                        Message msg = mQueue.out();
+                        if (msg instanceof FileMessage) {
+                            try {
+                                FileInputStream from = new FileInputStream(((FileMessage) msg).getFile());
+                                byte[] content = null;
+                                int len;
+                                while ((len = from.read(content)) != -1) {
+                                    sendStream.write(content, 0, len);
+                                }
+                                sendStream.flush();
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else if (msg instanceof StringMessage) {
+                            try {
+                                sendStream.write(((StringMessage) msg).getMessage().getBytes("UTF-8"));
+                                sendStream.flush();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private void recieve() {
 
     }
 
-    private InputStream recieveStream;
-
-    private void recieveThread() {
-
+    private void close() {
+        try {
+            sendStream.close();
+            recieveStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
