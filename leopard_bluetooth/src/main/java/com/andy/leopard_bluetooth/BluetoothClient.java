@@ -3,7 +3,9 @@ package com.andy.leopard_bluetooth;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.util.Log;
 
+import com.andy.leopard_bluetooth.socket.message.Message;
 import com.andy.leopard_bluetooth.subscribe.Bluetooth;
 import com.andy.leopard_bluetooth.subscribe.BluetoothReceiver;
 
@@ -23,6 +25,8 @@ public class BluetoothClient extends Bluetooth {
     private UUID mUUID;
     private static BluetoothClient mBluetoothClient = null;
 
+    private com.andy.leopard_bluetooth.socket.BluetoothSocket mBluetoothSocket;
+
     private BluetoothClient() {
     }
 
@@ -39,13 +43,15 @@ public class BluetoothClient extends Bluetooth {
     public void init(Context context, UUID uuid) {
         super.setContext(context);
         this.mUUID = uuid;
+
     }
 
     private BluetoothSocket socket;
     private List<BluetoothDevice> deviceList = new ArrayList<>();
+    private ConnectListener mConnectListener;
 
     public void connect(BluetoothDevice device, final ConnectListener listener) {
-
+        mConnectListener = listener;
         if (!deviceList.contains(device)) {
             listener.failure("没有发现该蓝牙设备");
             return;
@@ -64,9 +70,10 @@ public class BluetoothClient extends Bluetooth {
                 socket.connect();
             }
             if (socket.isConnected()) {
-                listener.success("连接成功");
+                mBluetoothSocket = new com.andy.leopard_bluetooth.socket.BluetoothSocket(socket);
+                //listener.success("连接成功");
             } else {
-                listener.failure("连接失败");
+                //listener.failure("连接失败");
             }
 
         } catch (IOException e) {
@@ -74,6 +81,10 @@ public class BluetoothClient extends Bluetooth {
         }
     }
 
+    public void send(Message msg) {
+        Log.d(TAG, "发送：" + msg.display());
+        mBluetoothSocket.send(msg);
+    }
 
     @Override
     public void update(Object obj, int code) {
@@ -84,6 +95,12 @@ public class BluetoothClient extends Bluetooth {
                 if (mDeviceUpdateListener != null) {
                     mDeviceUpdateListener.update(deviceList);
                 }
+                break;
+            case BluetoothReceiver.DEVICE_CONNECT:
+                mConnectListener.success("连接成功");
+                break;
+            case BluetoothReceiver.DEVICE_DISCONNECT:
+                mConnectListener.failure("连接失败");
                 break;
         }
 

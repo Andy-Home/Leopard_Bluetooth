@@ -1,7 +1,5 @@
 package com.andy.leopard_bluetooth.socket.message;
 
-import android.util.Log;
-
 /**
  * String类型消息
  * <p>
@@ -25,9 +23,10 @@ public class StringMessage extends Message {
     }
 
     @Override
-    void display() {
+    public String display() {
         if (message != null) {
-            Log.d(TAG, "id:" + id + " ---- " + message);
+            return "id:" + id + " ---- " + message;
         }
+        return "空消息";
     }
 }

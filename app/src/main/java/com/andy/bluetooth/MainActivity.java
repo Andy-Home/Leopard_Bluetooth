@@ -57,6 +57,7 @@ public class MainActivity extends Activity {
                         @Override
                         public void bonded(BluetoothDevice device) {
                             Toast.makeText(MainActivity.this, "绑定成功", Toast.LENGTH_SHORT).show();
+                            connect(device);
                         }
 
                         @Override
@@ -80,6 +81,19 @@ public class MainActivity extends Activity {
         mRecyclerView.setAdapter(mAdapter);
     }
 
+    private void connect(BluetoothDevice device) {
+        mLeopardManager.connect(device, new BluetoothClient.ConnectListener() {
+            @Override
+            public void success(String result) {
+                Toast.makeText(MainActivity.this, "蓝牙通讯建立连接", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void failure(String msg) {
+                Toast.makeText(MainActivity.this, "蓝牙通讯建立断开", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();

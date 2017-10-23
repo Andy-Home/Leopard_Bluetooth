@@ -8,9 +8,9 @@ package com.andy.leopard_bluetooth.socket.message;
 
 public abstract class Message {
     final String TAG = getClass().getSimpleName();
-    long id = System.currentTimeMillis();
+    public long id = System.currentTimeMillis();
 
-    abstract void display();
+    public abstract String display();
 
     @Override
     public boolean equals(Object obj) {

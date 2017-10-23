@@ -1,7 +1,5 @@
 package com.andy.leopard_bluetooth.socket.message;
 
-import android.util.Log;
-
 import java.io.File;
 
 /**
@@ -27,9 +25,10 @@ public class FileMessage extends Message {
     }
 
     @Override
-    void display() {
+    public String display() {
         if (mFile != null) {
-            Log.d(TAG, "id:" + id + " ---- 文件名：" + mFile.getName() + " 路径：" + mFile.getAbsolutePath());
+            return "id:" + id + " ---- 文件名：" + mFile.getName() + " 路径：" + mFile.getAbsolutePath();
         }
+        return "空文件";
     }
 }

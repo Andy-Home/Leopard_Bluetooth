@@ -1,10 +1,13 @@
 package com.andy.leopard_bluetooth.socket;
 
+import android.util.Log;
+
 import com.andy.leopard_bluetooth.socket.message.FileMessage;
 import com.andy.leopard_bluetooth.socket.message.Message;
 import com.andy.leopard_bluetooth.socket.message.StringMessage;
 import com.andy.leopard_bluetooth.socket.queue.MessageQueue;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -49,9 +52,11 @@ public class BluetoothSocket {
         mQueue.in(msg);
     }
 
+    byte[] suffix = "&*&*&*&*&*&*&*&*&*&*&".getBytes();
+    private Thread sendThread;
 
     private void sendThread() {
-        new Thread(new Runnable() {
+        sendThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (!isClose) {
@@ -60,12 +65,16 @@ public class BluetoothSocket {
                         Message msg = mQueue.out();
                         if (msg instanceof FileMessage) {
                             try {
-                                FileInputStream from = new FileInputStream(((FileMessage) msg).getFile());
+                                File file = ((FileMessage) msg).getFile();
+                                String prefix = "message:file;fileSize=" + file.length() + ";fileName=" + file.getName() + ";";
+                                sendStream.write(prefix.getBytes());
+                                FileInputStream from = new FileInputStream(file);
                                 byte[] content = null;
                                 int len;
-                                while ((len = from.read(content)) != -1) {
+                                while ((len = from.read(content)) != -1 && !isClose) {
                                     sendStream.write(content, 0, len);
                                 }
+                                sendStream.write(suffix);
                                 sendStream.flush();
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
@@ -74,7 +83,10 @@ public class BluetoothSocket {
                             }
                         } else if (msg instanceof StringMessage) {
                             try {
+                                String prefix = "message:string;id=" + msg.id + ";";
+                                sendStream.write(prefix.getBytes());
                                 sendStream.write(((StringMessage) msg).getMessage().getBytes("UTF-8"));
+                                sendStream.write(suffix);
                                 sendStream.flush();
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -83,14 +95,35 @@ public class BluetoothSocket {
                     }
                 }
             }
-        }).start();
+        });
+        sendThread.start();
     }
 
-    private void recieve() {
+    private Thread receiveThread;
 
+    private void receive() {
+        receiveThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!isClose) {
+
+                    try {
+                        byte[] content = null;
+                        int len;
+                        while ((len = recieveStream.read(content)) != -1 && !isClose) {
+                            String s = new String(content);
+                            Log.d(TAG, "接收信息：" + s);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     private void close() {
+        isClose = true;
         try {
             sendStream.close();
             recieveStream.close();

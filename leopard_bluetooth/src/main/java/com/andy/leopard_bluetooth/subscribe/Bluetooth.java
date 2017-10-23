@@ -15,7 +15,7 @@ import android.util.Log;
 
 public abstract class Bluetooth implements Observer {
     private final String TAG = getClass().getSimpleName();
-    private BluetoothAdapter adapter;
+    public BluetoothAdapter adapter;
     private Context mContext;
     private BluetoothReceiver mReceiver;
 

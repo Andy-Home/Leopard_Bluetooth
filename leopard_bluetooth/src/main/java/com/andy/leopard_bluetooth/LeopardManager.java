@@ -3,6 +3,7 @@ package com.andy.leopard_bluetooth;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 
+import com.andy.leopard_bluetooth.socket.message.Message;
 import com.andy.leopard_bluetooth.subscribe.Bluetooth;
 
 import java.io.File;
@@ -49,8 +50,18 @@ public class LeopardManager {
         return false;
     }
 
+    /**
+     * 设备绑定
+     *
+     * @param device   远程蓝牙设备对象
+     * @param listener 监听回调 {@link com.andy.leopard_bluetooth.subscribe.Bluetooth.BondListener}
+     */
     public void bond(BluetoothDevice device, Bluetooth.BondListener listener) {
         mBluetoothClient.bond(device, listener);
+    }
+
+    public void connect(BluetoothDevice device, BluetoothClient.ConnectListener listener) {
+        mBluetoothClient.connect(device, listener);
     }
 
     /**
@@ -60,6 +71,10 @@ public class LeopardManager {
      */
     public boolean sendFile(File file) {
         return false;
+    }
+
+    public void sendMessage(Message msg) {
+        mBluetoothClient.send(msg);
     }
 
     /**

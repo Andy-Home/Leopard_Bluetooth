@@ -33,6 +33,8 @@ public class BluetoothReceiver extends BroadcastReceiver implements Subject {
     public static final int BOND_NONE = 4;               //设备未配对
     public static final int STATE_ON = 5;               //蓝牙打开成功
     public static final int STATE_OFF = 6;              //蓝牙关闭成功
+    public static final int DEVICE_CONNECT = 7;         //蓝牙连接成功
+    public static final int DEVICE_DISCONNECT = 8;      //蓝牙连接断开
 
 
     @Override
@@ -80,6 +82,12 @@ public class BluetoothReceiver extends BroadcastReceiver implements Subject {
                     notify(null, STATE_OFF);
                     break;
             }
+        } else if (action.equals(BluetoothDevice.ACTION_ACL_CONNECTED)) {
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            notify(device, DEVICE_CONNECT);
+        } else if (action.equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)) {
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            notify(device, DEVICE_DISCONNECT);
         }
     }
 
